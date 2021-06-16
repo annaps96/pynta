@@ -8,17 +8,25 @@ PyNTA aims at bridging the gap between data acquisition and analysis in nanopart
 ## Installation
 
 ### for developers
-    First create a virtual environment using 
-        `python3 -m venv env`
-    and activate it with 
-        `source env/bin/activate`
-    on Linux, or 
-        `.\env\Scripts\activate`
-    on Windows.
+First create a virtual environment using 
 
-    Then install the required packages using 
-        `pip install -e .`
-    the `-e` flag will install the program in edit mode. Now you can run pynta from the command line by typing `pynta` and any changes made in this repo will automatically be used.
+    python3 -m venv env
+
+and activate it with 
+
+    source env/bin/activate
+
+on Linux, or 
+
+    .\env\Scripts\activate
+
+on Windows.
+
+Then install the required packages using 
+
+    pip install -e .
+    
+the `-e` flag will install the program in edit mode. Now you can run pynta from the command line by typing `pynta` and any changes made in this repo will automatically be used.
 ## Starting PyNTA
 In order to start the program, you need to run the following command: 
 
