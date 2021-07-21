@@ -2,6 +2,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QPushButton
+from numpy import square
 
 from pynta.view.GUI.histogram_widget import HistogramWidget
 from pynta.view.GUI.tracks_widget import TracksWidget
@@ -30,37 +31,26 @@ class SignalGeneratorWidget(QWidget):
         self.OffsetSpinbox.setRange(min_o, max_o)
         self.OffsetSpinbox.setValue(0.5*(min_o+max_o))
         for waveform in model.supported_waveforms():
-            self.WaveformSelector.addItem(waveform.name)
+            self.WaveformSelector.addItem(waveform.name, waveform)
         print("Supports live updates?", model.supports_live_updates())
-        self.flush_settings()
+        # self.flush_settings()
+        self.set_waveform()
         self.connectSignals()
 
     def connectSignals(self):
-        self.FrequencySpinbox.valueChanged.connect(self.set_frequency)
-        self.DutyCycleSpinbox.valueChanged.connect(self.set_duty_cycle)
-        self.AmplitudeSpinbox.valueChanged.connect(self.set_amplitude)
-        self.OffsetSpinbox.valueChanged.connect(self.set_offset)
         self.WaveformSelector.currentTextChanged.connect(self.set_waveform)
+        self.UpdateButton.clicked.connect(self.flush_settings)
     
-    def set_frequency(self):
-        self.model.set_frequency(self.FrequencySpinbox.value())
-    
-    def set_duty_cycle(self):
-        self.model.set_duty_cycle(self.DutyCycleSpinbox.value())
-    
-    def set_amplitude(self):
-        self.model.set_amplitude(self.AmplitudeSpinbox.value())
-
-    def set_offset(self):
-        self.model.set_offset(self.OffsetSpinbox.value())
     
     def set_waveform(self):
-        self.model.set_waveform(Waveform[self.WaveformSelector.currentText()])
+         self.DutyCycleSpinbox.setEnabled(self.WaveformSelector.currentData() == Waveform.Square)
 
     def flush_settings(self):
-        self.set_waveform()
-        self.set_frequency()
-        self.set_duty_cycle()
-        self.set_amplitude()
-        self.set_offset()
+        waveform = self.WaveformSelector.currentData()
+        if waveform == Waveform.Sine:
+            self.model.set_sine_wave(self.FrequencySpinbox.value(), self.AmplitudeSpinbox.value(), self.OffsetSpinbox.value())
+        elif waveform == Waveform.Square:
+            self.model.set_square_wave(self.FrequencySpinbox.value(), self.AmplitudeSpinbox.value(), self.OffsetSpinbox.value(), self.DutyCycleSpinbox.value())
+        else:
+            raise ValueError('Invalid Waveform {} passed to model {}'.format(waveform, self.model))
         #self.model.flush()

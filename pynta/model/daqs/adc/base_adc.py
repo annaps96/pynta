@@ -16,14 +16,7 @@ from abc import ABCMeta, abstractmethod
 #from pynta import Q_
 
 
-#logger = get_logger(__name__)
-
-class Waveform(Enum):
-    Square = 1,
-    Triangle = 2,
-    Sine = 3,
-    Arbitrary = 4
-
+#todo move to common file
 class SupportedValues:
     def __init__(self, values= [], is_range = False) -> None:
         self.__values = values
@@ -46,22 +39,13 @@ class SupportedValues:
         else:
             return None
 
-#todo: group up all the parameters in a single class. So that instead of implementing 6 functions for all the support/set, we only need to implement 2 (which take/return more arguments)
 class BaseSignalGenerator(metaclass = ABCMeta):
-    @abstractmethod
-    def supported_waveforms(self) -> 'set[Waveform]':
-        pass
-
     @abstractmethod
     def supported_frequencies(self) -> SupportedValues:
         pass
 
     @abstractmethod
     def supported_amplitudes(self) -> SupportedValues:
-        pass
-
-    @abstractmethod
-    def supported_offsets(self) -> SupportedValues:
         pass
     
     @abstractmethod

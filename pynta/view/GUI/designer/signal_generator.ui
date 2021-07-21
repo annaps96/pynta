@@ -21,6 +21,9 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="WaveformSelector"/>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="FrequencyLabel">
      <property name="text">
@@ -28,21 +31,41 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="WaveformSelector"/>
+   <item row="1" column="1">
+    <widget class="QDoubleSpinBox" name="FrequencySpinbox"/>
    </item>
    <item row="2" column="0">
+    <widget class="QLabel" name="AmplitudeLabel">
+     <property name="text">
+      <string>Amplitude</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QDoubleSpinBox" name="AmplitudeSpinbox"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="OffsetLabel">
+     <property name="text">
+      <string>Offset</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDoubleSpinBox" name="OffsetSpinbox"/>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="DutyCycleLabel">
      <property name="text">
       <string>Duty Cycle</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QDoubleSpinBox" name="FrequencySpinbox"/>
-   </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
     <widget class="QDoubleSpinBox" name="DutyCycleSpinbox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="keyboardTracking">
       <bool>true</bool>
      </property>
@@ -54,25 +77,28 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="AmplitudeLabel">
+   <item row="5" column="1">
+    <widget class="QPushButton" name="UpdateButton">
      <property name="text">
-      <string>Amplitude</string>
+      <string>Update</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="OffsetLabel">
+   <item row="6" column="1">
+    <widget class="QLabel" name="ErrorLabel">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Offset</string>
+      <string/>
      </property>
     </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QDoubleSpinBox" name="AmplitudeSpinbox"/>
-   </item>
-   <item row="4" column="1">
-    <widget class="QDoubleSpinBox" name="OffsetSpinbox"/>
    </item>
   </layout>
  </widget>

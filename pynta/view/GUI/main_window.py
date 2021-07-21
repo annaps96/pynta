@@ -1,9 +1,18 @@
 import os
+
+from pyqtgraph.dockarea.DockArea import DockArea
+
 from pynta.model.daqs.signal_generator.dummy_signal_generator import DummySignalGenerator
+from pynta.model.daqs.signal_generator.ni import Ni6216Generator
+
+from pynta.controller.devices.NIDAQ.ni_usb_6216 import NiUsb6216
+
 from PyQt5 import uic
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QPushButton, QSplitter
-
+from pyqtgraph import PlotWidget, plot
+import pyqtgraph as pg
+import numpy as np
 # This is what allows the icons to show up even if not explicitly used in the code
 from pynta.view.GUI import resources
 from pynta.util.log import get_logger
@@ -12,8 +21,9 @@ from pynta.view.GUI.config_tracking_widget import ConfigTrackingWidget
 from pynta.view.GUI.config_widget import ConfigWidget
 from pynta.view.GUI.analysis_dock_widget import AnalysisDockWidget
 from pynta.view.GUI.signal_generator_widget import SignalGeneratorWidget
+from pynta.view.GUI.adc_capture_widget import AdcCaptureWidget
 
-from pynta.model.daqs.signal_generator.stm_signal_generator import StmSignalGenerator
+# from pynta.model.daqs.signal_generator.stm_signal_generator import StmSignalGenerator
 
 
 class MainWindowGUI(QMainWindow):
@@ -25,14 +35,25 @@ class MainWindowGUI(QMainWindow):
 
         self.central_layout = QHBoxLayout(self.centralwidget)
         self.widget_splitter = QSplitter()
-
+        self.daq_splitter = QSplitter(orientation = Qt.Vertical)
         self.camera_viewer_widget = CameraViewerWidget()
         self.analysis_dock_widget = AnalysisDockWidget(self)
-        self.test_widget = SignalGeneratorWidget(StmSignalGenerator(), self)
+        controller = NiUsb6216()
+        self.test_widget = SignalGeneratorWidget(Ni6216Generator(controller), self)
+
+        self.plot_widget = AdcCaptureWidget(controller, self)
+        #self.curve = self.plot_widget.plot(np.zeros(1000))
+        # def fnc(data):
+        #     self.curve.setData(data)
+        #     #self.plot_widget.render()
+        #     return 0
+        # controller.capture_stream(5000,1000, fnc)
         self.widget_splitter.addWidget(self.camera_viewer_widget)
         self.widget_splitter.addWidget(self.analysis_dock_widget)
-        self.widget_splitter.addWidget(self.test_widget)
-        self.widget_splitter.setSizes((750, 500, 250))
+        self.widget_splitter.addWidget(self.daq_splitter)
+        self.daq_splitter.addWidget(self.test_widget)
+        self.daq_splitter.addWidget(self.plot_widget)
+        self.widget_splitter.setSizes((750, 500, 350))
         self.central_layout.addWidget(self.widget_splitter)
 
         self.config_widget = ConfigWidget()
