@@ -30,8 +30,7 @@ class AdcCaptureWidget(QWidget):
         self.UpdateButton.clicked.connect(self.flush_settings)
     
     def flush_settings(self):
-        def fnc(data):
-            print("updating curve")
+        def fnc(data): 
             self.curve.setData(data)
             #self.plot_widget.render()
             return 0
