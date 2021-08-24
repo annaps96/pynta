@@ -11,7 +11,7 @@ saving:
   auto_save: False
   auto_save_waterfall: True
   #todo: use OS specific tmp dir
-  directory: C:\Temp
+  directory: C:\dev\pynta\data
   filename_video: Video # Can be the same filename for video and photo
   filename_photo: Snap
   filename_tracks: Tracks
@@ -35,9 +35,9 @@ camera:
   binning_x: 1 # Binning
   binning_y: 1
   roi_x1: 0
-  roi_x2: 599
+  roi_x2: 500
   roi_y1: 0
-  roi_y2: 399
+  roi_y2: 250
   background: '' # Full path to background file, or empty for none.
   background_method: [Method1, Method2]
 
@@ -72,7 +72,7 @@ tracking:
   param_2: 0
 
 debug:
-  logging_level: Nothing # One of Nothing, Debug, Info, Warning, Error
+  logging_level: Debug # One of Nothing, Debug, Info, Warning, Error
   queue_memory: False
   to_screen: True
 

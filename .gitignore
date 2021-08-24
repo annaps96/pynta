@@ -16,3 +16,6 @@ venv/
 *.egg-info/
 _build/
 .ipynb_checkpoints/
+.qt_for_python
+rust_modules
+pyo3-test

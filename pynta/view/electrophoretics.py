@@ -1,10 +1,13 @@
+import os
+from PyQt5 import uic
+from PyQt5.QtWidgets import QMainWindow
+from pynta.util.log import get_logger
 from time import sleep
 
 import numpy as np
 
-from pynta.view.GUI.main_window import MainWindowGUI
-from pynta.view.subscriber_thread import SubscriberThread
-
+from pynta.view.GUI.electrophoretics_main import MainWindowGUI
+from pynta.model.daqs.signal_generator.ni import Ni6216Generator
 
 class MainWindow(MainWindowGUI):
     def __init__(self, experiment):
@@ -12,15 +15,14 @@ class MainWindow(MainWindowGUI):
         :param nanoparticle_tracking.model.experiment.win_nanocet.NPTracking experiment: Experiment class
         """
         super().__init__(experiment.config['GUI']['refresh_time'])
+
         self.experiment = experiment
+        self.plot_widget.set_model(experiment.daq_controller)
+        self.signal_gen_widget.set_model(Ni6216Generator(experiment.daq_controller))
         self.camera_viewer_widget.setup_roi_lines([self.experiment.max_width, self.experiment.max_height])
         self.config_tracking_widget.update_config(self.experiment.config['tracking'])
         self.config_widget.update_config(self.experiment.config)
         self.tracking = False
-
-        self.update_histogram_worker = SubscriberThread(self.experiment.publisher.port, 'histogram')
-        self.update_histogram_worker.data_received.connect(self.update_histogram)
-        self.update_histogram_worker.start()
 
         self.camera_viewer_widget.setup_mouse_click()
 
@@ -49,10 +51,10 @@ class MainWindow(MainWindowGUI):
             if self.experiment.tracking:
                 locations = self.experiment.temp_locations
                 self.camera_viewer_widget.draw_target_pointer(locations)
-            if hasattr(self.experiment, "monitoring_pixels"):
-                if self.experiment.monitoring_pixels:
-                    monitor_values = self.experiment.temp_monitor_values
-                    self.analysis_dock_widget.intensities_widget.update_graph(monitor_values)
+            # if hasattr(self.experiment, "monitoring_pixels"):
+                # if self.experiment.monitoring_pixels:
+                    # monitor_values = self.experiment.temp_monitor_values
+                    # self.analysis_dock_widget.intensities_widget.update_graph(monitor_values)
 
     def start_movie(self):
         if self.experiment.camera.running:
@@ -122,14 +124,16 @@ class MainWindow(MainWindowGUI):
             self.experiment.location.calculate_histogram()
 
     def update_histogram(self, values):
-        if len(values) > 0:
-            vals = np.array(values)[:, 0]
-            vals = vals[~np.isnan(vals)]
-            self.analysis_dock_widget.histogram_widget.update_distribution(vals)
+        pass
+        # if len(values) > 0:
+            # vals = np.array(values)[:, 0]
+            # vals = vals[~np.isnan(vals)]
+            # self.analysis_dock_widget.histogram_widget.update_distribution(vals)
 
     def update_tracks(self):
-        locations = self.experiment.location.relevant_tracks()
-        self.analysis_dock_widget.tracks_widget.plot_trajectories(locations)
+        pass
+        # locations = self.experiment.location.relevant_tracks()
+        # self.analysis_dock_widget.tracks_widget.plot_trajectories(locations)
 
     def update_tracking_config(self, config):
         config = dict(
@@ -142,6 +146,6 @@ class MainWindow(MainWindowGUI):
 
     def closeEvent(self, *args, **kwargs):
         self.experiment.finalize()
-        sleep(1)
+        #sleep(1)
         super().closeEvent(*args, **kwargs)
 

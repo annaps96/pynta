@@ -3,7 +3,7 @@ import os
 from pyqtgraph.dockarea.DockArea import DockArea
 
 from pynta.model.daqs.signal_generator.dummy_signal_generator import DummySignalGenerator
-from pynta.model.daqs.signal_generator.ni import Ni6216Generator
+
 
 from pynta.controller.devices.NIDAQ.ni_usb_6216 import NiUsb6216
 
@@ -20,8 +20,8 @@ from pynta.view.GUI.camera_viewer_widget import CameraViewerWidget
 from pynta.view.GUI.config_tracking_widget import ConfigTrackingWidget
 from pynta.view.GUI.config_widget import ConfigWidget
 from pynta.view.GUI.analysis_dock_widget import AnalysisDockWidget
-# from pynta.view.GUI.signal_generator_widget import SignalGeneratorWidget
-# from pynta.view.GUI.adc_capture_widget import AdcCaptureWidget
+from pynta.view.GUI.signal_generator_widget import SignalGeneratorWidget
+from pynta.view.GUI.adc_capture_widget import AdcCaptureWidget
 
 # from pynta.model.daqs.signal_generator.stm_signal_generator import StmSignalGenerator
 
@@ -37,19 +37,19 @@ class MainWindowGUI(QMainWindow):
         self.widget_splitter = QSplitter()
         
         self.camera_viewer_widget = CameraViewerWidget()
-        self.analysis_dock_widget = AnalysisDockWidget(self)
-        # self.daq_splitter = QSplitter(orientation = Qt.Vertical)
-        # controller = NiUsb6216()
-        # self.test_widget = SignalGeneratorWidget(Ni6216Generator(controller), self)
+        #self.analysis_dock_widget = AnalysisDockWidget(self)
+        self.daq_splitter = QSplitter(orientation = Qt.Vertical)
+        
+        self.signal_gen_widget = SignalGeneratorWidget(self)
 
-        # self.plot_widget = AdcCaptureWidget(controller, self)
-        # self.daq_splitter.addWidget(self.test_widget)
-        # self.daq_splitter.addWidget(self.plot_widget)
+        self.plot_widget = AdcCaptureWidget(self)
+        self.daq_splitter.addWidget(self.signal_gen_widget)
+        self.daq_splitter.addWidget(self.plot_widget)
 
         self.widget_splitter.addWidget(self.camera_viewer_widget)
-        self.widget_splitter.addWidget(self.analysis_dock_widget)
+        #self.widget_splitter.addWidget(self.analysis_dock_widget)
         
-        # self.widget_splitter.addWidget(self.daq_splitter)
+        self.widget_splitter.addWidget(self.daq_splitter)
         
         self.widget_splitter.setSizes((750, 500))
         self.central_layout.addWidget(self.widget_splitter)
@@ -76,10 +76,11 @@ class MainWindowGUI(QMainWindow):
         self.config_widget.apply_config.connect(self.update_config)
 
     def connect_buttons(self):
-        self.analysis_dock_widget.button_histogram.clicked.connect(
-            self.calculate_histogram)
-        self.analysis_dock_widget.button_tracks.clicked.connect(
-            self.update_tracks)
+        # self.analysis_dock_widget.button_histogram.clicked.connect(
+        #     self.calculate_histogram)
+        # self.analysis_dock_widget.button_tracks.clicked.connect(
+        #     self.update_tracks)
+        pass
 
     def connect_actions(self):
         self.actionClose.triggered.connect(self.safe_close)

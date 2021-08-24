@@ -2,7 +2,6 @@ import nidaqmx as nidaq
 from nidaqmx.constants import AcquisitionType
 import numpy as np
 class NiUsb6216:
-    
     def __init__(self, out_channel = 'Dev1/ao0', in_channel = 'Dev1/ai0'):
         #self.out_channel = out_channel
         self.out_task = nidaq.Task()
@@ -17,6 +16,14 @@ class NiUsb6216:
         self.out_task.write(np.zeros(2))
         self.out_task.start()
         self.in_task.start()
+        #this function will be called everytime there's new data, with the data as argument, and the GUI can hook onto this to display the data.
+        self.display_fnc = lambda x: None
+        #this function will be called everytime there's new data, with the data as argument. This is intended for processing the data such as saving or analysis.
+        #it's a seperate function to decouple the presence of a GUI from the experiment logic. In general the experiment file is in charge of doing the data logic and the GUI displays data and controls the settings. 
+        # there's no direct coupling between the two, it goes trough the model. This maintains that seperation.
+        self.processing_fnc = lambda x: None
+        self.data_size = (0,)
+        self.data_type = np.float32 #is this correct?
     
     def __del__(self):
         print("destructing nidaq")
@@ -28,7 +35,9 @@ class NiUsb6216:
         self.out_task.write(np.zeros(2))
         self.out_task.close()
         self.in_task.close()
-        
+    def get_size(self):
+        return self.data_size
+           
     def start_sine_task(self, frequency, amplitude, offset, n_points = 250):
         data = amplitude*np.sin(np.linspace(0, 2 * np.pi, endpoint=False, num=n_points))+offset
         return self.start_arbitrary_task(data, frequency)
@@ -60,13 +69,23 @@ class NiUsb6216:
         self.in_task.stop()
         self.in_task.timing.cfg_samp_clk_timing(frequency, sample_mode=AcquisitionType.FINITE, samps_per_chan=points)
         return self.in_task.read(points)
+    
+    def set_display_function(self, fnc):
+        self.display_fnc = fnc
+        
+    def set_processing_function(self, fnc):
+        self.processing_fnc = fnc
 
-    def capture_stream(self, frequency, points, callback):
+    def capture_stream(self, frequency, points):
+        
         def inner_callback(task_handle, every_n_samples_event_type,
             number_of_samples, callback_data):
             samples = self.in_task.read(number_of_samples_per_channel=points)
-            return callback(samples)
+            self.display_fnc(samples)
+            self.processing_fnc(samples)
+            return 0
         self.in_task.stop()
+        self.data_size = (points,)
         self.in_task.timing.cfg_samp_clk_timing(frequency, sample_mode=AcquisitionType.CONTINUOUS, samps_per_chan=points)
         self.in_task.register_every_n_samples_acquired_into_buffer_event(points, None)
         self.in_task.register_every_n_samples_acquired_into_buffer_event(points, inner_callback)
