@@ -17,7 +17,8 @@ venv/
 _build/
 .ipynb_checkpoints/
 .qt_for_python
-rust_modules
+rust_modules/*/target
+rust_modules/*/Cargo.lock
 pyo3-test
 *.hdf5
 fpsdata.txt
