@@ -1,9 +1,16 @@
 use pyo3::prelude::*;
 use pyo3::exceptions;
 use mcl_stagedrive::microdrive;
-#[pyclass(name="Stage")]
-struct PyStage {
-    dev : microdrive::Device
+use mcl_stagedrive::madlib;
+#[pyclass(name="XyStage")]
+struct PyXyStage {
+    dev : microdrive::Device,
+}
+
+#[pyclass(name="XyzStage")]
+struct PyXyzStage {
+    xy : PyXyStage,
+    z : madlib::Device,
 }
 
 struct Wrapper<T>(T);
@@ -19,10 +26,10 @@ fn to_py_err<T,  E : std::fmt::Debug>(original : Result<T,E>) -> PyResult<T> {
 }
 
 #[pymethods]
-impl PyStage {
+impl PyXyStage {
     #[new]
     pub fn new() -> PyResult<Self> {
-        Ok(PyStage{
+        Ok(Self{
             dev : microdrive::get_all_devices().pop().ok_or(exceptions::PyValueError::new_err("No free madcitylabs microdrive found. Is another program holding the handle?"))?
         })
     }
@@ -43,9 +50,44 @@ impl PyStage {
     }
 }
 
+#[pymethods]
+impl PyXyzStage {
+    #[new]
+    pub fn new() -> PyResult<Self> {
+        Ok(Self{
+            xy : PyXyStage::new()?,
+            z : madlib::get_all_devices().pop().ok_or(exceptions::PyValueError::new_err("No free madcitylabs nanodrive found. Is another program holding the handle?"))?
+        })
+    }
+    pub fn move_xy(&self, distance : [f64;2], velocity : [f64;2]) ->   PyResult<()> {
+        self.xy.move_xy(distance, velocity)
+    }
+    pub fn move_x(&self, distance : f64, velocity : f64) ->   PyResult<()> {
+        self.xy.move_x(distance, velocity)
+    }
+    pub fn move_y(&self, distance : f64, velocity : f64) ->   PyResult<()> {
+        self.xy.move_y(distance, velocity)
+    }
+    pub fn supported_velocity_range(&mut self) -> PyResult<[f64;2]> {
+        self.xy.supported_velocity_range()
+    }
+
+    #[getter]
+    pub fn get_z(&self) -> PyResult<f64> {
+        to_py_err(self.z.read_position_z())
+    }
+
+    #[setter]
+    pub fn set_z(&mut self, position_in_microns : f64) -> PyResult<()> {
+        to_py_err(self.z.move_to_z(position_in_microns))
+    }
+}
+
+
 #[pymodule]
 fn _pynta_drivers(py: Python, m: &PyModule) -> PyResult<()> {
     // m.add_function(wrap_pyfunction!(double, m)?)?;
-    m.add_class::<PyStage>()?;
+    m.add_class::<PyXyStage>()?;
+    m.add_class::<PyXyzStage>()?;
     Ok(())
 }
