@@ -236,7 +236,7 @@ class Experiment(BaseExperiment):
         
         self.background = np.array(())
         self.temp_image = None  # Temporary image, used to quickly have access to 'some' data and display it to the user
-        self.temp_locations = None
+        self.tracked_locations = None
         self.movie_buffer = None  # Holds few frames of the movie in order to be able to do some analysis, save later, etc.
         self.last_index = 0  # Last index used for storing to the movie buffer
         self.stream_saving_running = False
@@ -411,8 +411,8 @@ class Experiment(BaseExperiment):
         aqcuisition = self.hdf5.start_new_aquisition()
         def null(x):
             pass
-        # self.daq_controller.set_processing_function(SaveDaqToHDF5(aqcuisition, self.daq_controller))
-        self.daq_controller.set_processing_function(null)
+        self.daq_controller.set_processing_function(SaveDaqToHDF5(aqcuisition, self.daq_controller))
+        #self.daq_controller.set_processing_function(null)
         print("setting up for snap!")
         self.camera.set_acquisition_mode(self.camera.MODE_SINGLE_SHOT)
         self.camera.start_acquisition()
@@ -421,18 +421,19 @@ class Experiment(BaseExperiment):
         image = self.camera.read_camera()[-1]
         self.camera.stop_acquisition()
         print("got first frame, locating now!")
-        # locations = tp.locate(image, self.config['tracking']['locate']['diameter'])
-        # self.clear_monitor_coordinates()
+        locations = tp.locate(image, self.config['tracking']['locate']['diameter'])
+        self.clear_monitor_coordinates()
         # for _idx, row in locations.iterrows():
-        #     self.add_monitor_coordinate((row['x'], row['y']))
+        x,y = self.camera.get_size()
+        self.add_monitor_coordinate((x/2, y/2))
         # self.temp_locations = locations
         # self.tracking = True
-        self.tracking = False
+        self.tracking = True
         def update_tmp(df):
             self.temp_locations = df
         print("created pipeline")
         # pipeline = DataPipeline([SaveImageToHDF5(aqcuisition, self.camera, 10),ContinousTracker(self.config['tracking']['locate']['diameter']), SaveTracksToHDF5(aqcuisition), update_tmp])
-        pipeline = DataPipeline([SaveImageToHDF5(aqcuisition, self.camera, 100)])
+        pipeline = DataPipeline([SaveImageToHDF5(aqcuisition, self.camera, 4)])
         def fnc(data):
             # print("proccesing data!")
             if len(data) > 0:
